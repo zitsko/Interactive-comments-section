@@ -1,4 +1,4 @@
-const Trade = require('../modules/comment.js');
+const Comment = require('../modules/comment.js');
 
 const getAllComments = async (req,res) => {
     const comments = await Comment.find();

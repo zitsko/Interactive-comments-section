@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 
-const commentRouter = require("./routers/tradeRouter");
+const commentRouter = require("./routers/commentRouter");
 const userRouter = require("./routers/userRouter");
 
 app.use(
