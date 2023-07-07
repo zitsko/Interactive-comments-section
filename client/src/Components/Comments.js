@@ -18,27 +18,29 @@ function CommentSection() {
   useEffect(() => {
     // Check if a token is present in local storage
     if (localStorage.getItem('token')) {
+      console.log("1")
       // Send a token verification request to the server
       axios
         .post('http://localhost:3005/user/verify', {
           token: localStorage.getItem('token'),
         })
         .then(({ data }) => {
-          console.log('User logged in:', data);
+          console.log(data)
           // If the token is valid and user data is received, update the user state
-          if (data._id) {
-            setUser(data);
-            fetchComments(data._id);
-            console.log('Comments fetched');
+          if (data.user._id) {
+            setUser(data.user);
+            fetchComments(data.user._id);
+            console.log('3');
           } else {
             // If the token is invalid or no user data is received, redirect to the login page
-            console.log('Invalid token:', data);
+            console.log('2');
             navigate('/');
           }
         });
     } else {
       // If no token is found, redirect to the login page
       navigate('/');
+      console.log('4');
     }
   }, []);
 
