@@ -1,112 +1,143 @@
-// Import necessary dependencies and hooks
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Define the CommentSection component
 function CommentSection() {
-  // Initialize state variables
   const navigate = useNavigate();
+  const [newComment, setNewComment] = useState({
+    content: '',
+    userId: '',
+    createdAt: Date.now(),
+    upvotes: '',
+  });
   const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState('');
   const [user, setUser] = useState({
     _id: '',
     email: '',
   });
 
-  // Perform initial setup and token verification
   useEffect(() => {
-    // Check if a token is present in local storage
     if (localStorage.getItem('token')) {
-      console.log("1")
-      // Send a token verification request to the server
       axios
         .post('http://localhost:3005/user/verify', {
           token: localStorage.getItem('token'),
         })
         .then(({ data }) => {
-          console.log(data)
-          // If the token is valid and user data is received, update the user state
-          if (data.user._id) {
-            setUser(data.user);
-            fetchComments(data.user._id);
-            console.log('3');
+          if (data.userData._id) {
+            console.log(data.userData);
+            setUser(data.userData);
+            axios
+              .get('http://localhost:3005/comment/' + data.userData._id)
+              .then(({ data }) => {
+                console.log("user comments", data);
+                setComments(data);
+              });
           } else {
-            // If the token is invalid or no user data is received, redirect to the login page
-            console.log('2');
             navigate('/');
           }
         });
     } else {
-      // If no token is found, redirect to the login page
       navigate('/');
-      console.log('4');
     }
   }, []);
 
-  // Fetch comments for the current user
-  const fetchComments = (userId) => {
+  const handleCommentChange = (event) => {
+    const { name, value } = event.target;
+    setNewComment((prevComment) => ({
+      ...prevComment,
+      [name]: value,
+      userId: user._id,
+    }));
+  };
+
+  const handleCommentSubmit = (event) => {
+    event.preventDefault();
+    console.log(newComment);
+  
     axios
-      .get(`http://localhost:3005/comment/${userId}`)
-      .then((response) => {
-        setComments(response.data);
-        console.log('Comment get:', response.data);
+      .post('http://localhost:3005/comment', newComment)
+      .then(() => {
+        setNewComment({
+          content: '',
+          userId: '',
+          createdAt: Date.now(),
+          upvotes: '',
+        });
+        // Fetch the updated comments after successful submission
+        axios
+          .get('http://localhost:3005/comment/' + user._id)
+          .then(({ data }) => {
+            console.log('user comments', data);
+            setComments(data);
+          })
+          .catch((error) => {
+            console.error('Error fetching comments:', error);
+          });
       })
       .catch((error) => {
-        console.error('Error fetching comments:', error);
+        console.error('Error sending comment data:', error);
       });
   };
 
-  // Create a new comment
-  function createComment() {
-    axios
-      .post('http://localhost:3005/comment', {
-        content: newComment,
-        user: user._id,
-      })
-      .then((response) => {
-        console.log('Comment created:', response.data);
-        setComments([...comments, response.data]);
-        setNewComment('');
-      })
-      .catch((error) => {
-        console.error('Error creating comment:', error);
-      });
-  }
-
-  // Delete a comment
-  function deleteComment(commentId) {
+  function handleCommentDelete(commentId) {
     axios
       .delete(`http://localhost:3005/comment/${commentId}`)
       .then(() => {
-        setComments(comments.filter((comment) => comment._id !== commentId));
+        setComments((prevComments) => prevComments.filter((comment) => comment._id !== commentId));
       })
       .catch((error) => {
         console.error('Error deleting comment:', error);
       });
-  }
+  };
 
-  // Render the component
+  const handleCommentEdit = (commentId, updatedContent) => {
+    axios
+      .put(`http://localhost:3005/comment/${commentId}`, { content: updatedContent })
+      .then(() => {
+        // Fetch the updated comments after successful edit
+        axios
+          .get('http://localhost:3005/comment/' + user._id)
+          .then(({ data }) => {
+            console.log('user comments', data);
+            setComments(data);
+          })
+          .catch((error) => {
+            console.error('Error fetching comments:', error);
+          });
+      })
+      .catch((error) => {
+        console.error('Error updating comment:', error);
+      });
+  };
+
   return (
     <div>
       <h2>Comments</h2>
-      <ul>
-        {comments.map((comment) => (
-          <li key={comment._id}>
-            {comment.content}{' '}
-            <button onClick={() => deleteComment(comment._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={createComment}>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Enter your comment"
-        ></textarea>
+      <form onSubmit={handleCommentSubmit}>
+        <label>
+          Comment:
+          <textarea
+          name="content"
+          value={newComment.content}
+          onChange={handleCommentChange}
+        />
+        </label>
+        <br />
         <button type="submit">Submit</button>
       </form>
-    </div>
+      <div className="comment-section">
+        {comments.map((newComment) => (
+          <div key={newComment._id} className="comment-item">
+            <p>Content: {newComment.content}</p>
+            <p>UserID: {newComment.userId}</p>
+            <p>Created At: {newComment.createdAt}</p>
+            <p>Upvotes: {newComment.upvotes}</p>
+            <button onClick={() => handleCommentEdit(newComment._id, 'Updated Content')}>Edit</button>
+            <button onClick={() => handleCommentDelete(newComment._id)}>Delete</button>
+           </div>
+         ))}
+      </div>
+      </div>
   );
 }
 
