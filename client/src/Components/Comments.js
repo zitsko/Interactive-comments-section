@@ -143,31 +143,48 @@ function CommentSection() {
       })
       .catch((error) => {
         console.error("Error sending reply data:", error);
-      });
+      }); 
   };
 
+  function disconnect() {
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+
   return (
-    <div>
-      <h2>Comments</h2>
+    <div className="comments-container">
+      <div className="header">
+        <h2>Comments</h2>
+        <button
+            className="disconnect-btn"
+            onClick={() => {
+              disconnect();
+            }}
+          >
+            Disconnect
+          </button>
+      </div>
+
       <form onSubmit={handleCommentSubmit}>
         <label>
           Comment:
           <textarea
             name="content"
+            placeholder="Add a comment..."
             value={newComment.content}
             onChange={handleCommentChange}
           />
         </label>
         <br />
-        <button type="submit">Submit</button>
+        <button className="submit-btn" type="submit">Submit</button>
       </form>
       <div className="comment-section">
         {comments.map((comment) => (
           <div key={comment._id} className="comment-item">
-            <p>Content: {comment.content}</p>
-            <p>UserID: {comment.userId}</p>
-            <p>Created At: {comment.createdAt}</p>
-            <p>Upvotes: {comment.upvotes}</p>
+            <p className="comments">Content: {comment.content}</p>
+            {/* <p>UserID: {comment.userId}</p> */}
+            {/* <p>Created At: {comment.createdAt}</p>
+            <p>Upvotes: {comment.upvotes}</p> */}
             {isEditing && editCommentId === comment._id ? (
               <div>
                 <input
@@ -189,15 +206,19 @@ function CommentSection() {
             ) : (
               <>
                 <button
+                className="edit-btn"
                   onClick={() => {
                     setIsEditing(true);
                     setEditCommentContent(comment.content);
                     setEditCommentId(comment._id);
+                    
                   }}
                 >
                   Edit
                 </button>
-                <button onClick={() => handleCommentDelete(comment._id)}>
+                <button 
+                className="delete-btn"
+                onClick={() => handleCommentDelete(comment._id)}>
                   Delete
                 </button>
               </>
@@ -208,25 +229,19 @@ function CommentSection() {
               {comment.replies &&
                 comment.replies.map((reply) => (
                   <div key={reply._id} className="reply-item">
-                    <p>Content: {reply.content}</p>
-                    <p>UserID: {reply.userId}</p>
-                    <p>Created At: {reply.createdAt}</p>
 
-                    {/* Render Nested Replies */}
-                    {reply.replies &&
-                      reply.replies.map((nestedReply) => (
-                        <div
-                          key={nestedReply._id}
-                          className="nested-reply-item"
-                        >
-                          <p>Content: {nestedReply.content}</p>
-                          <p>UserID: {nestedReply.userId}</p>
-                          <p>Created At: {nestedReply.createdAt}</p>
-                        </div>
-                      ))}
+                    <div className="user-date-container">
+                      <p>UserID: {reply.userId}</p>
+                      <p> {reply.createdAt}</p>
+                    </div>
+
+                    <p className="comments reply-comment">
+                      Content: {reply.content}
+                    </p>
                   </div>
                 ))}
             </div>
+
             {/* Reply Form */}
             <form
               onSubmit={(event) => {
@@ -243,7 +258,7 @@ function CommentSection() {
                   onChange={(event) => setReplyContent(event.target.value)}
                 />
               </label>
-              <button type="submit">Submit Reply</button>
+              <button className="submit-btn" type="submit">Submit Reply</button>
             </form>
           </div>
         ))}
