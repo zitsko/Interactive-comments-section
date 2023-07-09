@@ -47,7 +47,7 @@ const verify = async (req,res) => {
             if(user) {
                 const token = jwt.sign({ _id: user._id }, "difficultPrivateKey"); 
                 res.send ({
-                    data: user,
+                    userData: user,
                     token: token,
                 });
             } else {
