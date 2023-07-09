@@ -86,16 +86,19 @@ function CommentSection() {
   };
 
   const handleCommentDelete = (commentId) => {
-    axios
-      .delete(`http://localhost:3005/comment/${commentId}`)
-      .then(() => {
-        setComments((prevComments) =>
-          prevComments.filter((comment) => comment._id !== commentId)
-        );
-      })
-      .catch((error) => {
-        console.error("Error deleting comment:", error);
-      });
+    const shouldDelete = window.confirm("Are you sure you want to delete this comment?");
+    if (shouldDelete) {
+      axios
+        .delete(`http://localhost:3005/comment/${commentId}`)
+        .then(() => {
+          setComments((prevComments) =>
+            prevComments.filter((comment) => comment._id !== commentId)
+          );
+        })
+        .catch((error) => {
+          console.error("Error deleting comment:", error);
+        });
+    }
   };
 
   const handleCommentEdit = (commentId, updatedContent) => {
