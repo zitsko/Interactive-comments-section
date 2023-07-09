@@ -1,25 +1,22 @@
 const db = require('./connection.js');
 const mongoose = require('mongoose');
 
+const replySchema = new mongoose.Schema({
+  content: String,
+  userId: String,
+  createdAt: Date,
+});
+
 const commentSchema = new mongoose.Schema({
-    content: {
-      type: String,
-      required: true
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true 
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    },
-    upvotes: {
-      type: Number,
-      default: 0
-    }
-  });
+  content: String,
+  userId: String,
+  createdAt: Date,
+  upvotes: Number,
+  replies: {
+    type: [replySchema],
+    default: [],
+  },
+});
 
 const Comment = mongoose.model('Comment', commentSchema);
 
