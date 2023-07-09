@@ -181,7 +181,11 @@ function CommentSection() {
       <div className="comment-section">
         {comments.map((comment) => (
           <div key={comment._id} className="comment-item">
-            <p className="comments">Content: {comment.content}</p>
+            <div className="user-date-container">
+                      <p>UserID: {comment.userId}</p>
+                      <p> {comment.createdAt}</p>
+                    </div>
+            <p className="comments"> {comment.content}</p>
             {/* <p>UserID: {comment.userId}</p> */}
             {/* <p>Created At: {comment.createdAt}</p>
             <p>Upvotes: {comment.upvotes}</p> */}
@@ -236,7 +240,7 @@ function CommentSection() {
                     </div>
 
                     <p className="comments reply-comment">
-                      Content: {reply.content}
+                       {reply.content}
                     </p>
                   </div>
                 ))}

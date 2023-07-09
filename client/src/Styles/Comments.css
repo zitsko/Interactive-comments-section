@@ -64,10 +64,12 @@
 .user-date-container{
     display: flex;
     gap: 1rem;
+    margin-bottom: -1.8rem;
 }
 
 .reply-comment{
     width:60%;
+
   }
 
 /* .replies{
